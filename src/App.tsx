@@ -58,8 +58,8 @@ function App() {
     const loadDefaultData = async () => {
       try {
         const [jsonRes, csvRes] = await Promise.all([
-          fetch('/data/my-fitness-data.json').then(res => res.ok ? res.text() : null),
-          fetch('/data/strong_workouts.csv').then(res => res.ok ? res.text() : null)
+          fetch(`${import.meta.env.BASE_URL}data/my-fitness-data.json`).then(res => res.ok ? res.text() : null),
+          fetch(`${import.meta.env.BASE_URL}data/strong_workouts.csv`).then(res => res.ok ? res.text() : null)
         ]);
 
         if (jsonRes || csvRes) {
