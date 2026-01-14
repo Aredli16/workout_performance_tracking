@@ -1,0 +1,26 @@
+@import "tailwindcss";
+
+@theme {
+  --color-background: #09090b;
+  --color-surface: #18181b;
+  --color-primary: #3b82f6;
+  --color-secondary: #ec4899;
+  --color-accent: #8b5cf6;
+  --color-text: #f4f4f5;
+  --color-muted: #a1a1aa;
+  --color-border: #27272a;
+}
+
+@layer base {
+  body {
+    @apply bg-background text-text antialiased;
+  }
+}
+
+.glass-panel {
+  @apply bg-surface/50 backdrop-blur-md border border-border rounded-xl shadow-xl;
+}
+
+.chart-container {
+  @apply w-full h-[300px] mt-4;
+}

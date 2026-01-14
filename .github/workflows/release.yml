@@ -1,0 +1,91 @@
+name: Release Pipeline
+
+on:
+  workflow_dispatch:
+    inputs:
+      bump:
+        description: 'SemVer Bump Type'
+        required: true
+        default: 'patch'
+        type: choice
+        options:
+          - patch
+          - minor
+          - major
+      notes:
+        description: 'Release notes (optional)'
+        required: false
+        type: string
+
+# Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages and creating releases
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+# Allow only one concurrent deployment, skipping runs queued between the run in-progress and latest queued.
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # Required for git history/versioning
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Use Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Configure Git
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run Tests
+        run: npm run test -- --run
+
+      - name: Bump Version
+        id: version
+        # Run npm version, and capture the new tag. 
+        # We push changes manually afterwards or let the action do it if configured, 
+        # but typical flow is commit -> push.
+        run: |
+          new_version=$(npm version ${{ inputs.bump }})
+          echo "tag=$new_version" >> $GITHUB_OUTPUT
+          git push origin HEAD:main --tags
+
+      - name: Build
+        run: npm run build
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: ./dist
+
+      - name: Zip Dist for Release
+        run: cd dist && zip -r ../dist.zip ./*
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.version.outputs.tag }}
+          name: Release ${{ steps.version.outputs.tag }}
+          body: ${{ inputs.notes }}
+          generate_release_notes: ${{ inputs.notes == '' }}
+          make_latest: true
+          files: dist.zip
