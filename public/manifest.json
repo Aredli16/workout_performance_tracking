@@ -1,0 +1,17 @@
+{
+    "name": "FitTrack Pro",
+    "short_name": "FitTrack",
+    "start_url": "./",
+    "display": "standalone",
+    "background_color": "#18181b",
+    "theme_color": "#18181b",
+    "description": "Suivi de performances sportives",
+    "icons": [
+        {
+            "src": "vite.svg",
+            "sizes": "48x48 72x72 96x96 128x128 256x256 512x512",
+            "type": "image/svg+xml",
+            "purpose": "any maskable"
+        }
+    ]
+}

@@ -9,9 +9,6 @@ test('has title and main sections', async ({ page }) => {
     // Check header text
     await expect(page.getByText('FitTrack Pro')).toBeVisible();
 
-    // Check upload area
-    await expect(page.getByText(/Glissez vos fichiers/i)).toBeVisible();
-
     // Check for chart sections (initially empty state text might be present)
     // Since we load default data in the app, we expect charts to eventually load.
     // We'll wait for a text that only appears when data is loaded, e.g., "Poids Actuel"

@@ -5,8 +5,7 @@ import {
   LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip,
   BarChart, Bar, AreaChart, Area, Legend
 } from 'recharts';
-import { Upload, Activity, Scale, Dumbbell, Calendar as CalendarIcon, TrendingUp } from 'lucide-react';
-import clsx from 'clsx';
+import { Activity, Scale, Dumbbell, Calendar as CalendarIcon, TrendingUp } from 'lucide-react';
 import { format, startOfWeek, isSameWeek } from 'date-fns';
 import { fr } from 'date-fns/locale';
 
@@ -50,7 +49,6 @@ const ChartAutoSizer = ({
 function App() {
   const [data, setData] = useState<AppData | null>(null);
   const [loading, setLoading] = useState(true);
-  const [dragActive, setDragActive] = useState(false);
   const [selectedExercise, setSelectedExercise] = useState<string>('Squat (Barbell)');
 
   // Load default data on mount
@@ -75,42 +73,6 @@ function App() {
 
     loadDefaultData();
   }, []);
-
-  // File Upload Handlers
-  const handleDrag = (e: React.DragEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    if (e.type === "dragenter" || e.type === "dragover") {
-      setDragActive(true);
-    } else if (e.type === "dragleave") {
-      setDragActive(false);
-    }
-  };
-
-  const handleDrop = async (e: React.DragEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setDragActive(false);
-    setLoading(true);
-
-    const files = Array.from(e.dataTransfer.files);
-    let jsonContent: string | null = null;
-    let csvContent: string | null = null;
-
-    for (const file of files) {
-      if (file.name.endsWith('.json')) {
-        jsonContent = await file.text();
-      } else if (file.name.endsWith('.csv')) {
-        csvContent = await file.text();
-      }
-    }
-
-    if (jsonContent || csvContent) {
-      const parsed = await parseFileContent(jsonContent, csvContent);
-      setData(parsed);
-    }
-    setLoading(false);
-  };
 
   // processed data for charts
   const weeklyVolume = useMemo(() => {
@@ -246,25 +208,6 @@ function App() {
 
       <main className="container mx-auto px-4 sm:px-6">
 
-        {/* File Upload / Update */}
-        <div
-          className={clsx(
-            "relative mb-10 rounded-2xl border-2 border-dashed transition-all duration-300 ease-in-out p-8 text-center group",
-            dragActive ? "border-primary bg-primary/10 scale-[1.01]" : "border-border hover:border-muted bg-surface/30"
-          )}
-          onDragEnter={handleDrag}
-          onDragLeave={handleDrag}
-          onDragOver={handleDrag}
-          onDrop={handleDrop}
-        >
-          < div className="pointer-events-none flex flex-col items-center gap-2">
-            <div className="p-4 rounded-full bg-surface border border-border group-hover:border-primary/50 transition-colors">
-              <Upload className="w-6 h-6 text-muted group-hover:text-primary" />
-            </div>
-            <p className="text-lg font-medium">Glissez vos fichiers ici pour mettre à jour</p>
-            <p className="text-sm text-muted">Accepte .json (Fitness Data) et .csv (Strong App)</p>
-          </div>
-        </div>
 
         {loading ? (
           <div className="flex justify-center items-center h-64">
@@ -272,7 +215,7 @@ function App() {
           </div>
         ) : !data ? (
           <div className="text-center text-muted">
-            Aucune donnée trouvée. Veuillez importer vos fichiers.
+            Aucune donnée trouvée.
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
